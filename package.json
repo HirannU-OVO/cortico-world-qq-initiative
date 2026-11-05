@@ -1,0 +1,46 @@
+{
+  "name": "cortico-world-qq-initiative",
+  "version": "0.4.0-dev.4",
+  "type": "module",
+  "description": "Cortico World 扩展：QQ主动搭话，按作息与白名单主动找对方说话。独立自闭环、三阶段配额、成功以平台回执为准。",
+  "license": "MIT",
+  "keywords": [
+    "cortico-world",
+    "qq",
+    "im",
+    "proactive",
+    "companion"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.ts",
+  "scripts": {
+    "build:webui": "..\\..\\..\\..\\resources\\app\\node_modules\\@esbuild\\win32-x64\\esbuild.exe src/webui/client.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=dist/webui.js --loader:.css=css && node -e \"require('fs').copyFileSync('src/webui/style.css','dist/webui.css')\"",
+    "build": "npm run build:webui",
+    "typecheck": "tsc --noEmit",
+    "test": "node test_engine.mjs && node test_routine.mjs && node verify/run.mjs",
+    "test:acceptance": "node verify/run.mjs",
+    "check": "node --check src/index.ts"
+  },
+  "cortico": {
+    "kind": "world",
+    "api": 6,
+    "displayName": "QQ主动搭话",
+    "describe": "describe.json",
+    "webUiClient": "dist/webui.js",
+    "webUiStyle": "dist/webui.css"
+  },
+  "files": [
+    "src",
+    "dist",
+    "describe.json",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  },
+  "author": "HirannU"
+}

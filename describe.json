@@ -1,0 +1,127 @@
+{
+  "tools": [
+    {
+      "name": "qq_initiative_send",
+      "description": "主动搭话专用发信渠道：向指定 QQ 私聊或群发送一条消息",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "投递地址（private:<QQ号> 或 group:<群号>）"
+          },
+          "text": {
+            "type": "string",
+            "description": "消息正文"
+          }
+        },
+        "required": [
+          "to",
+          "text"
+        ]
+      },
+      "tags": [
+        "speak"
+      ],
+      "summary": {
+        "zh": "主动搭话专用发信渠道。",
+        "en": "Send a proactive QQ message."
+      }
+    },
+    {
+      "name": "qq_initiative_status",
+      "description": "查询当前 QQ主动搭话引擎的运行状态、作息时段、今日已发配额及会话活跃度统计",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "可选的指定会话地址（private:<QQ号>）"
+          }
+        }
+      },
+      "tags": [
+        "read"
+      ],
+      "summary": {
+        "zh": "查询 QQ主动搭话运行状态与配额。",
+        "en": "Check QQ proactive chat status and quota."
+      }
+    },
+    {
+      "name": "qq_initiative_trigger",
+      "description": "手动触发对指定白名单会话的主动搭话测试（调试与强制唤醒用）",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "目标会话地址（private:<QQ号>）"
+          },
+          "scene": {
+            "type": "string",
+            "description": "主动场景类型：idle_chat、routine_wake、routine_noon、routine_sleep",
+            "enum": [
+              "idle_chat",
+              "routine_wake",
+              "routine_noon",
+              "routine_sleep"
+            ]
+          },
+          "force": {
+            "type": "boolean",
+            "description": "是否放宽今日配额与同会话最小区间（默认 false）"
+          }
+        },
+        "required": [
+          "address"
+        ]
+      },
+      "tags": [
+        "write"
+      ],
+      "summary": {
+        "zh": "手动触发对指定会话的主动搭话测试。",
+        "en": "Manually trigger proactive test for a session."
+      }
+    },
+    {
+      "name": "qq_initiative_reset",
+      "description": "手动重置 QQ主动搭话配额或会话未回复冷却计数（管理与自测用）",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "重置目标类型：daily_quota、session、all",
+            "enum": [
+              "daily_quota",
+              "session",
+              "all"
+            ]
+          },
+          "address": {
+            "type": "string",
+            "description": "当 target 为 session 时必须指定的会话地址"
+          }
+        }
+      },
+      "tags": [
+        "write"
+      ],
+      "summary": {
+        "zh": "重置主动搭话配额或会话冷却计数。",
+        "en": "Reset proactive quota or session cooldown."
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "im.proactive.turn",
+      "description": {
+        "zh": "主动搭话触发事件：唤醒桌宠主模型按白名单与防打扰纪律自主决定是否发信。",
+        "en": "Proactive chat nudge: wakes the main model to decide whether to speak."
+      }
+    }
+  ]
+}
