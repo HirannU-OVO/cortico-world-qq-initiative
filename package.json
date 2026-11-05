@@ -30,14 +30,19 @@
     "displayName": "QQ主动搭话",
     "describe": "describe.json",
     "webUiClient": "dist/webui.js",
-    "webUiStyle": "dist/webui.css"
+    "webUiStyle": "dist/webui.css",
+    "tags": [
+      "qq",
+      "proactive"
+    ]
   },
   "files": [
     "src",
     "dist",
     "describe.json",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "devDependencies": {
     "@types/node": "^26.6.6",
@@ -46,10 +51,15 @@
   "author": "HirannU",
   "repository": {
     "type": "git",
-    "url": "https://github.com/HirannU-OVO/cortico-world-qq-initiative.git"
+    "url": "git+github.com/HirannU-OVO/cortico-world-qq-initiative.git"
   },
   "homepage": "https://github.com/HirannU-OVO/cortico-world-qq-initiative#readme",
   "bugs": {
     "url": "https://github.com/HirannU-OVO/cortico-world-qq-initiative/issues"
+  },
+  "private": false,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }
