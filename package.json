@@ -43,5 +43,13 @@
     "@types/node": "^26.6.6",
     "typescript": "^7.0.2"
   },
-  "author": "HirannU"
+  "author": "HirannU",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HirannU-OVO/cortico-world-qq-initiative.git"
+  },
+  "homepage": "https://github.com/HirannU-OVO/cortico-world-qq-initiative#readme",
+  "bugs": {
+    "url": "https://github.com/HirannU-OVO/cortico-world-qq-initiative/issues"
+  }
 }
