@@ -1,6 +1,6 @@
 {
   "name": "cortico-world-qq-initiative",
-  "version": "0.4.0-dev.4",
+  "version": "0.4.0",
   "type": "module",
   "description": "Cortico World 扩展：QQ主动搭话，按作息与白名单主动找对方说话。独立自闭环、三阶段配额、成功以平台回执为准。",
   "license": "MIT",
