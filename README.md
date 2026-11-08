@@ -96,8 +96,8 @@ cortico-world-qq-initiative (裁决引擎)
 | 发信通道 | `outboundMode` | 单选 | `builtin` | 发信链路：`builtin`（OneBot直发）/ `external`（外部扩展）/ `bridge`（AstrBot桥），改完需重启本 World |
 | 允许它主动找你说话 | `enabled` | 布尔 | `false` | 主动搭话总开关，开启前需填入白名单 |
 | 对谁主动说话 | `mode` | 单选 | `private` | 搭话模式：`private`（私聊）、`group`（群聊）或 `all`（两者） |
-| 能主动找的 QQ 号 | `whitelistPrivate` | 字符串 | 空 | 允许主动联系的好友 QQ 号列表（纯数字，逗号或换行分隔） |
-| 能主动说话的群号 | `whitelistGroup` | 字符串 | 空 | 允许主动发言的群号列表（纯数字，逗号或换行分隔） |
+| 能主动找的 QQ 号 | `whitelistPrivate` | 字符串 | 无 | 允许主动联系的好友 QQ 号列表（纯数字，留空谁都不找） |
+| 能主动说话的群号 | `whitelistGroup` | 字符串 | 无 | 允许主动发言的群号列表（纯数字，留空不在任何群里说） |
 | 每天最多主动找你几次 | `dailyQuota` | 整数 | `20` | 每日全局最大主动搭话次数上限 |
 | 连着几次没回就先不说 | `unrepliedThreshold` | 整数 | `3` | 连续未回复阈值，达到后进入静默避让状态，对方回话即重置 |
 | 对同一个人最快多久说一次（分钟） | `privateMinIntervalMin` | 整数 | `60` | 私聊最小间隔，默认 60 分钟 |
@@ -118,7 +118,7 @@ cortico-world-qq-initiative (裁决引擎)
 | 提示它称呼对方名字 | `withNickname` | 布尔 | `true` | 是否引导模型带上对方称呼，显得更自然 |
 | 作息切换时主动说一句 | `announceRoutine` | 布尔 | `true` | 早/午/晚时段交替时主动发送问候 |
 | 让它知道今天的额度和规矩 | `promptEnabled` | 布尔 | `true` | 是否在提示词中注入配额与纪律说明 |
-| 自定义说话风格 | `promptText` | 字符串 | 空 | 附加提示词说明，留空使用内置人设风格 |
+| 自定义说话风格 | `promptText` | 字符串 | 无 | 附加提示词说明，留空使用内置人设风格 |
 
 ### 运营层（配置文件，不进面板）
 
