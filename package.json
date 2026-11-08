@@ -33,10 +33,23 @@
     "webUiStyle": "dist/webui.css",
     "tags": [
       "experimental",
+      "im",
       "qq",
-      "proactive"
+      "companion",
+      "external-setup",
+      "unofficial-api"
     ],
-    "icon": "icon.svg"
+    "icon": "icon.svg",
+    "locales": {
+      "zh": {
+        "displayName": "QQ主动搭话",
+        "description": "按作息规律与白名单主动向好友/群发起对话，三阶段配额防打扰。"
+      },
+      "en": {
+        "displayName": "QQ Proactive Chat",
+        "description": "Initiate proactive conversations on QQ based on daily routines, whitelists, and quotas."
+      }
+    }
   },
   "files": [
     "src",
@@ -54,7 +67,7 @@
   "author": "HirannU",
   "repository": {
     "type": "git",
-    "url": "git+github.com/HirannU-OVO/cortico-world-qq-initiative.git"
+    "url": "git+https://github.com/HirannU-OVO/cortico-world-qq-initiative.git"
   },
   "homepage": "https://github.com/HirannU-OVO/cortico-world-qq-initiative#readme",
   "bugs": {
