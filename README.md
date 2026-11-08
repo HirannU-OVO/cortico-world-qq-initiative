@@ -21,6 +21,30 @@
 
 ---
 
+## 架构与工作流程
+
+```text
+Coopanion 桌宠调度器 (定时巡检 / 触发事件)
+  │  触发主动搭话判定
+  ▼
+cortico-world-qq-initiative (裁决引擎)
+  ├─ 作息状态机检查：深睡完全静默，午休降频
+  ├─ 安全白名单过滤：硬排除未登记的好友与群聊
+  ├─ 频控与配额仲裁：每日配额、单会话最小间隔、未回复静默避让
+  ▼
+大模型推理决策 (Agent)
+  │  根据情境生成问候台词，或自主决策保持沉默（不扣配额）
+  │  可选联动：调用 qq_sticker_send 进行情绪配图
+  ▼
+发信通道分发 (三模式)
+  ├─ builtin  ── 本机 OneBot v11 HTTP 接口直发（NapCatQQ / SnowLuma）
+  ├─ external ── 委派给宿主中其他 QQ 发信扩展
+  └─ bridge   ── 经 AstrBot 桥由 astrbot_send_message 发出
+```
+
+---
+
+
 ## 配套插件
 
 本扩展与 **[cortico-world-qq-stickers](https://github.com/HirannU-OVO/cortico-world-qq-stickers)** 配合使用：
@@ -65,28 +89,55 @@
 
 ## 配置参数速查
 
-所有配置项位于 `worlds.qq-initiative` 下：
+### 面板可见：基础设置（`worlds.qq-initiative`）
 
-| 配置项 | 类型 | 默认值 | 说明 |
-| :--- | :---: | :--- | :--- |
-| `enabled` | boolean | `false` | 主动搭话总开关（需先配置白名单） |
-| `mode` | string | `"private"` | 搭话模式：`private`（私聊）、`group`（群聊）或 `all` |
-| `whitelistPrivate` | string | `""` | 允许主动联系的私聊 QQ 号列表（纯数字，逗号分隔） |
-| `whitelistGroup` | string | `""` | 允许主动发言的群号列表 |
-| `dailyQuota` | number | `20` | 每日全局最大主动搭话次数 |
-| `unrepliedThreshold` | number | `3` | 连续未回复阈值，达到后进入静默避让状态 |
-| `privateMinIntervalMin` | number | `60` | 对同一好友搭话的最小时间间隔（分钟） |
-| `routineEnabled` | boolean | `true` | 是否启用作息时间控制 |
-| `sleepStart` / `sleepEnd` | string | `"23:30"` / `"08:00"` | 夜间深睡时段起止时间（`HH:mm`） |
+| 面板显示名 | 配置 id | 类型 | 默认值 | 说明 |
+| :--- | :--- | :---: | :---: | :--- |
+| 发信通道 | `outboundMode` | 单选 | `builtin` | 发信链路：`builtin`（OneBot直发）/ `external`（外部扩展）/ `bridge`（AstrBot桥），改完需重启本 World |
+| 允许它主动找你说话 | `enabled` | 布尔 | `false` | 主动搭话总开关，开启前需填入白名单 |
+| 对谁主动说话 | `mode` | 单选 | `private` | 搭话模式：`private`（私聊）、`group`（群聊）或 `all`（两者） |
+| 能主动找的 QQ 号 | `whitelistPrivate` | 字符串 | 空 | 允许主动联系的好友 QQ 号列表（纯数字，逗号或换行分隔） |
+| 能主动说话的群号 | `whitelistGroup` | 字符串 | 空 | 允许主动发言的群号列表（纯数字，逗号或换行分隔） |
+| 每天最多主动找你几次 | `dailyQuota` | 整数 | `20` | 每日全局最大主动搭话次数上限 |
+| 连着几次没回就先不说 | `unrepliedThreshold` | 整数 | `3` | 连续未回复阈值，达到后进入静默避让状态，对方回话即重置 |
+| 对同一个人最快多久说一次（分钟） | `privateMinIntervalMin` | 整数 | `60` | 私聊最小间隔，默认 60 分钟 |
+| 对同一个人最久隔多久说一次（分钟） | `privateMaxIntervalMin` | 整数 | `360` | 私聊最大间隔，默认 360 分钟（6 小时） |
+| 对同一个群最快多久说一次（分钟） | `groupMinIntervalMin` | 整数 | `180` | 群聊最小间隔，默认 180 分钟（3 小时） |
+| 对同一个群最久隔多久说一次（分钟） | `groupMaxIntervalMin` | 整数 | `720` | 群聊最大间隔，默认 720 分钟（12 小时） |
+| 按作息说话 | `routineEnabled` | 布尔 | `true` | 是否启用作息控制，深睡完全静默，午休降频 |
+| 几点开始睡（HH:mm） | `sleepStart` | 字符串 | `23:30` | 夜间深睡起始时间 |
+| 几点睡醒（HH:mm） | `sleepEnd` | 字符串 | `08:00` | 早晨醒来起始时间 |
+| 几点开始午休（HH:mm） | `lazyStart` | 字符串 | `12:30` | 午休降频起始时间 |
+| 几点午休结束（HH:mm） | `lazyEnd` | 字符串 | `14:00` | 午休结束时间 |
+
+### 面板可见：高级设置（`worlds.qq-initiative:advanced`）
+
+| 面板显示名 | 配置 id | 类型 | 默认值 | 说明 |
+| :--- | :--- | :---: | :---: | :--- |
+| 允许它判断「现在不该打扰」就闭嘴 | `allowSilence` | 布尔 | `true` | 允许模型自主决策此刻保持沉默，放弃搭话不扣配额 |
+| 提示它称呼对方名字 | `withNickname` | 布尔 | `true` | 是否引导模型带上对方称呼，显得更自然 |
+| 作息切换时主动说一句 | `announceRoutine` | 布尔 | `true` | 早/午/晚时段交替时主动发送问候 |
+| 让它知道今天的额度和规矩 | `promptEnabled` | 布尔 | `true` | 是否在提示词中注入配额与纪律说明 |
+| 自定义说话风格 | `promptText` | 字符串 | 空 | 附加提示词说明，留空使用内置人设风格 |
 
 ### 运营层（配置文件，不进面板）
 
 | 配置项 | 默认值 | 说明 |
 | :--- | :--- | :--- |
-| `outboundMode` | `"builtin"` | 发信通道：`builtin` / `external` / `bridge`，改完需重启本 World |
 | `outboundHttpUrl` | `"http://127.0.0.1:3000"` | OneBot v11 HTTP 服务端地址（builtin 模式） |
 | `outboundHttpToken` | `""` | OneBot 访问 Token（亦可经环境变量 `QQ_PROACTIVE_ONEBOT_TOKEN` 提供） |
+| `outboundHttpTimeoutMs` | `8000` | OneBot 请求超时（毫秒） |
 | `outboundTool` 等字段映射 | 见源码 | `external`/`bridge` 模式下的发信工具名与参数名映射 |
+
+---
+
+## 常见排障
+
+| 现象 | 原因 | 处理 |
+| :--- | :--- | :--- |
+| 开启后桌宠始终不主动搭话 | 未配置白名单或当前处于深睡时段 | 检查 `whitelistPrivate` 是否已填入你的 QQ 号（白名单为空时硬排除）；检查当前系统时间是否在 `sleepStart` ~ `sleepEnd` 之间 |
+| 手动触发测试报 `QUOTA_EXCEEDED` 或 `UNREPLIED_LIMIT` | 每日配额耗尽或连续未回复达到阈值 | 等待次日配额重置或对方在 QQ 中回复一句；亦可调用 `qq_initiative_reset(target="all")` 手动重置 |
+| 发信报错 `ECONNREFUSED` 或无反应 | OneBot HTTP 接口未启动或发信通道选错 | 检查本机 OneBot 服务（NapCatQQ / SnowLuma）是否正常监听；若走 AstrBot 桥接请将 `outboundMode` 改为 `bridge` 并重启本 World |
 
 ---
 
