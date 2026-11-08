@@ -50,7 +50,7 @@
 
 ---
 
-## 工具列表
+## 工具 / 接口列表
 
 本扩展向模型注册了以下主动搭话相关的诊断与控制工具：
 
@@ -90,20 +90,15 @@
 
 ---
 
-## 参考与致谢
+## 依赖与参考
 
-本项目为原创实现。下表列明所参考的项目、参考内容及其边界：
-
-| 项目 | 许可 | 我们参考了什么 |
+| 上游项目 | 用途 | 许可 |
 | :--- | :--- | :--- |
-| [OneBot v11 规范](https://github.com/botuniverse/onebot-11) | 见上游仓库 | 发信接口与消息段格式（协议标准） |
-| [NapCatQQ](https://github.com/NapNeko/NapCatQQ) / [SnowLuma](https://github.com/SnowLuma/SnowLuma) | 见上游仓库 | 本机 OneBot 实现（部署依赖，未包含其代码） |
-| [cortico-world-qq-final](https://www.npmjs.com/package/cortico-world-qq-final) | MIT | 分段发送的消息形态与 `[表情包:路径]` 标记约定；实现独立编写 |
-| [cortico-world-astrbot](https://www.npmjs.com/package/cortico-world-astrbot) | MIT | 桥接模式下 `astrbot_send_message` 的工具名与参数约定（依赖，未包含其代码） |
+| [OneBot v11 规范](https://github.com/botuniverse/onebot-11) | 发信接口与消息段格式遵循的协议标准 | 见上游仓库 |
+| [NapCatQQ](https://github.com/NapNeko/NapCatQQ) / [SnowLuma](https://github.com/SnowLuma/SnowLuma) | 本机 OneBot 实现，作为部署运行依赖 | 见上游仓库 |
+| [cortico-world-qq-final](https://www.npmjs.com/package/cortico-world-qq-final) | 分段发送与 `[表情包:路径]` 标记的消息形态约定参考 | MIT |
+| [cortico-world-astrbot](https://www.npmjs.com/package/cortico-world-astrbot) | 桥接模式下 `astrbot_send_message` 的工具名与参数约定参考 | MIT |
 
-> **边界声明**：本仓库不包含任何第三方项目的源代码；与上游的交互均通过公开接口、协议或工具名约定完成。若权利人认为有不妥之处，欢迎提 issue 沟通处理。
-
----
 
 ## 许可证
 
