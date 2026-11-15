@@ -611,7 +611,6 @@ export class ProactiveWorld implements World {
         channel: 'qq',
         targetAddress: address,
         targetKind: kind,
-        targetName: label,
         scene,
         outboundTool: this.outboundAdapter.toolName,
         pledgedAt: pledged.pledgedAt,
@@ -828,9 +827,6 @@ export class ProactiveWorld implements World {
       proactiveQuota: `${this.stateManager.dailyCount} / ${dailyQuota} 次`,
       outboundTool: this.outboundAdapter.toolName,
       proactiveGuidance: this.promptText(),
-      stickerHint: this.bridgeMode()
-        ? '正文发出后调 qq_sticker_send 补一张表情包（配不配由它掷骰，没过就纯文字收尾）；不要在发信工具里带图。'
-        : '配图由发送侧按概率自动附带，正文不要提及图片；想自己挑可调表情工具拿真实路径。',
     };
   }
 
@@ -876,7 +872,6 @@ export class ProactiveWorld implements World {
             { name: 'proactiveWhitelist', description: '白名单会话列表' },
             { name: 'proactiveQuota', description: '今日搭话频次与配额' },
             { name: 'outboundTool', description: '发信工具名称' },
-            { name: 'stickerHint', description: '配图说明（按发信通道不同）' },
             { name: 'proactiveGuidance', description: '主动搭话风格与纪律引导' },
           ],
         },

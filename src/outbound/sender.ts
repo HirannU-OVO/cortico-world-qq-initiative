@@ -7,7 +7,6 @@ import type { ProactiveConfig } from '../config.ts';
 import type { SendReceipt } from '../types.ts';
 import { normalizeAddress } from './adapter.ts';
 import { OneBotHttpClient, sanitizeText } from './onebot.ts';
-import { loadStickerResolve } from './sticker-link.ts';
 
 /** external 模式的固定失败原因，世界回合据此回滚质押 */
 export const EXTERNAL_UNOBSERVABLE_ERROR = 'external_mode_unobservable';
@@ -131,38 +130,19 @@ export class OutboundSender {
 
     try {
       const client = this.getClient(cfg);
-      // 表情解析全权归「QQ表情管理」扩展（resolveOutgoing 内部含掷骰兜底、标记转段、
-      // 以及「表情管理关了就不发图」的治理闸）；本扩展只负责把结果发出去。
-      const resolver = await loadStickerResolve();
-      let bodyToSend = body;
-      let segments: import('./onebot.ts').OutgoingSegment[] = [];
-      if (resolver) {
-        const out = resolver.resolveOutgoing(body, {
-          info: (m) => this.deps.log.info(m),
-        });
-        bodyToSend = out.text;
-        segments = out.segments;
-        if (out.segments.some((s) => s.type === 'image') && bodyToSend !== body) {
-          this.deps.log.info('[发信] 正文未带表情标记，已按概率自动补一张。');
-        }
-      }
-      // 正文里的 [表情包:路径] 已由表情扩展转成图片段（对齐 qq-final 的做法）
+      // 主动搭话只发正文：配图不属于本扩展职责，正文原样发送——不解析标记、不改写、不带图片段。
+      const segments: import('./onebot.ts').OutgoingSegment[] = [];
       const receipt =
         normalized.kind === 'group'
-          ? await client.sendGroup(normalized.id, bodyToSend, segments)
-          : await client.sendPrivate(normalized.id, bodyToSend, segments);
+          ? await client.sendGroup(normalized.id, body, segments)
+          : await client.sendPrivate(normalized.id, body, segments);
 
       if (receipt.ok) {
         this.deps.log.info(`[发信] 已发出给 ${target}。`);
-        // 分段发送时文字已送达；个别图片条失败不整体报错（报错会诱发重复发送），只记日志
-        const raw = receipt.raw as { imageFailures?: string[] } | undefined;
-        if (raw?.imageFailures?.length) {
-          this.deps.log.warn(`[发信] ${target} 有 ${raw.imageFailures.length} 张图片没发出去：${sanitizeText(raw.imageFailures.join('；'))}`);
-        }
       } else {
         this.deps.log.warn(`[发信] 这次没发出去给 ${target}：${sanitizeText(receipt.error ?? '未知原因')}`);
       }
-      return { ...receipt, address: target, text: bodyToSend };
+      return { ...receipt, address: target, text: body };
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
       this.deps.log.error(`[发信] 发送过程出错了（${target}）：${sanitizeText(reason)}。请检查发信地址与访问令牌。`);

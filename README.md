@@ -4,7 +4,7 @@
 
 - World id：`qq-initiative`；包名：`cortico-world-qq-initiative`
 - 发信通道：三种模式二选一——内置 OneBot v11 HTTP 直发（**以平台确认回执为准**）、交给外部 World 的工具、或经 AstrBot 桥（模型调 `astrbot_send_message`）
-- 配图联动：主动轮不自行发图，配图交给 `cortico-world-qq-stickers` 的 `qq_sticker_send`（掷骰与频控由表情扩展唯一裁决）
+- 配图：不在本扩展职责内——主动轮只发正文，不解析表情标记、不自动带图
 - 安全机制：装好后默认**处于关闭状态**且白名单为空，未经明确配置绝不主动打扰任何人
 
 ---
@@ -34,7 +34,6 @@ cortico-world-qq-initiative (裁决引擎)
   ▼
 大模型推理决策 (Agent)
   │  根据情境生成问候台词，或自主决策保持沉默（不扣配额）
-  │  可选联动：调用 qq_sticker_send 进行情绪配图
   ▼
 发信通道分发 (三模式)
   ├─ builtin  ── 本机 OneBot v11 HTTP 接口直发（NapCatQQ / SnowLuma）
@@ -45,14 +44,22 @@ cortico-world-qq-initiative (裁决引擎)
 ---
 
 
-## 配套插件
+## 配图与其它插件的关系
 
-本扩展与 **[cortico-world-qq-stickers](https://github.com/HirannU-OVO/cortico-world-qq-stickers)** 配合使用：
+- 本扩展只负责把话发出去：正文原样发送，不解析表情标记、不自动配图，也不依赖任何其它扩展。
+- 想让它发表情包，请另行安装表情类扩展（例如 [cortico-world-qq-stickers](https://github.com/HirannU-OVO/cortico-world-qq-stickers)），由模型自行决定是否单独发一条。**这是可选项，不是依赖**；只装本扩展时一切功能照常，纯文字对话不受影响。
 
-- 主动搭话轮只负责把正文发出去，配图交给 `qq-stickers` 的 `qq_sticker_send`——掷骰、保底与冷却由表情扩展唯一裁决，本扩展不自行发图、不重复记账；
-- 表情扩展未安装或被停用时，主动轮自然只发纯文字，不影响搭话本身。
+---
 
-两个插件可独立安装，同装时自动配合。
+## 发信通道
+
+- `builtin`：本扩展自建 OneBot v11 直连，需要你自己跑 NapCat / SnowLuma 并在面板填地址与 token。
+  本扩展默认经非官方客户端用你自己的 QQ 号发消息（市场标签 `unofficial-api`），账号与协议端风险由使用者承担；只装本扩展 + 一个协议端就能用。
+- `bridge`：若宿主已注册 `astrbot_send_message` 工具，可把发信交给它；该工具存在且已接通时才可用，否则改用 `builtin`。
+- `external`：把正文交给宿主里提供发信工具的扩展，默认 `qq_send`（由 qq-final 提供），工具名也可以配成别的。
+  这条通路早期版本就在用，可正常发信；代价是本扩展看不到发信结果——该通道下按未发出处理、不计配额。
+
+切换通道后需要重启本 World。
 
 ---
 

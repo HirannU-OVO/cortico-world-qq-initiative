@@ -94,7 +94,6 @@ export interface ProactiveEventMeta {
   channel: string;
   targetAddress: string;
   targetKind: TargetKind;
-  targetName?: string;
   unansweredCount: number;
   scene: ProactiveScene;
   outboundTool: string;
