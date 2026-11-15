@@ -57,13 +57,9 @@ export class NudgeBuilder {
         `发送：调 \`${outboundTool}\`，conv_kind = "${convKind}"，conv_id = "${convId}"（原样照抄；这轮没有 QQ 消息，必须显式给会话）`
       );
       lines.push(`场景：${sceneText}，已安静 ${quiet} 分钟｜时段：${phaseText}`);
-      lines.push(
-        `配图：文字发出后调 \`qq_sticker_send\`，to = "${address}"（原样照抄）；配不配图由它掷骰，没过就纯文字收尾，别在发信工具里带图。`
-      );
     } else {
       lines.push(`发送：调 \`${outboundTool}\`，to = "${address}"（原样照抄）`);
       lines.push(`场景：${sceneText}，已安静 ${quiet} 分钟｜时段：${phaseText}`);
-      lines.push('配图：发送侧会按概率自动附带表情包（调表情工具挑过则用你挑的），正文不要提及图片。');
     }
 
     const wants: string[] = ['1~3 句，自然、别客服腔'];

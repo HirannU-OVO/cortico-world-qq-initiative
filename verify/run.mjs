@@ -640,13 +640,22 @@ try {
 
   // ============================================================ V23 文案不点名其他工具
   if (want('V23')) {
-    section('V23', '用户可见文案里不再出现 qq_send');
+    section('V23', '用户可见文案不把 qq_send 当成"要调用的工具"');
     const surfaces = [
       ['src/ENV_PROMPT.md', readFileSync('src/ENV_PROMPT.md', 'utf8')],
       ['describe.json', readFileSync('describe.json', 'utf8')],
       ['README.md', readFileSync('README.md', 'utf8')],
     ];
     for (const [name, body] of surfaces) {
+      if (name === 'README.md') {
+        // README 允许在「发信通道」段落点名 external 的默认工具（qq-final 提供的 qq_send），
+        // 但不得把它写成模型/用户要直接调用的工具；出现在别的上下文一律判失败。
+        const offenders = body
+          .split('\n')
+          .filter((line) => line.includes('qq_send') && !/external|qq-final|外部/.test(line));
+        check('V23', offenders.length === 0, `${name} 仅 external 说明提到 qq_send（越界行=${offenders.length}）`);
+        continue;
+      }
       check('V23', !body.includes('qq_send'), `${name} 无 qq_send`);
     }
     // nudge 与面板文案同样不得出现
@@ -809,6 +818,61 @@ try {
     check('V29',
       inRange && varied,
       `12 次间隔全部落在 5~30 分钟内（最小 ${Math.min(...waits).toFixed(1)}，最大 ${Math.max(...waits).toFixed(1)}），且不完全相同`);
+
+    section('V30', '主动回合事件不带会话名（数据最小化）');
+    {
+      const dirP = join(root, 'v30-privacy');
+      const cfgP = baseConfig({ outboundHttpUrl: onebot.baseUrl });
+      const hostP = createHost(dirP);
+      const worldP = new ProactiveWorld(createCtx(dirP, cfgP, []), { tickIntervalMs: 60_000 });
+      await worldP.start(hostP);
+      await worldP.dispatchProactiveTurn('private:123456789', 'private', 'idle_chat', '羽羽的昵称');
+      const evP = hostP.pushed.find((p) => p.type === 'im.proactive.turn');
+      const metaP = evP?.meta ?? {};
+      check('V30',
+        !!evP && !('targetName' in metaP) && /^(private|group):\d+$/.test(String(metaP.targetAddress ?? '')),
+        `meta 键=${Object.keys(metaP).join(',')}｜targetAddress=${metaP.targetAddress}`);
+      await worldP.stop();
+    }
+
+    section('V31', '只装本插件（无兄弟扩展）时 builtin 纯文本照常发出');
+    {
+      const dirQ = join(root, 'v31-plain');
+      const cfgQ = baseConfig({ outboundHttpUrl: onebot.baseUrl, outboundMode: 'builtin' });
+      const hostQ = createHost(dirQ);
+      const worldQ = new ProactiveWorld(createCtx(dirQ, cfgQ, []), { tickIntervalMs: 60_000 });
+      await worldQ.start(hostQ);
+      const beforeQ = onebot.state.calls.length;
+      const rawQ = await toolByName(worldQ, 'qq_initiative_send').handler(
+        { to: 'private:123456789', text: '在吗，吃上饭没' },
+        {},
+      );
+      const callsQ = onebot.state.calls.slice(beforeQ);
+      const lastQ = callsQ[callsQ.length - 1];
+      const bodyQ = JSON.stringify(lastQ?.payload ?? {});
+      check('V31',
+        callsQ.length > 0 && lastQ?.payload?.message === '在吗，吃上饭没' && !bodyQ.includes('"image"'),
+        `通道=${worldQ.sender.mode}｜请求 ${callsQ.length} 次｜message=${JSON.stringify(lastQ?.payload?.message)}｜含图片段=${bodyQ.includes('"image"')}｜回执=${String(rawQ).slice(0, 40)}`);
+      await worldQ.stop();
+    }
+
+    section('V32', '正文里的表情标记原样发出（本扩展不解析、不剥离）');
+    {
+      const dirS = join(root, 'v32-marker');
+      const cfgS = baseConfig({ outboundHttpUrl: onebot.baseUrl, outboundMode: 'builtin' });
+      const hostS = createHost(dirS);
+      const worldS = new ProactiveWorld(createCtx(dirS, cfgS, []), { tickIntervalMs: 60_000 });
+      await worldS.start(hostS);
+      const beforeS = onebot.state.calls.length;
+      const marker = '[表情包:开心/x.gif]';
+      await toolByName(worldS, 'qq_initiative_send').handler({ to: 'group:987654321', text: marker }, {});
+      const callsS = onebot.state.calls.slice(beforeS);
+      const lastS = callsS[callsS.length - 1];
+      check('V32',
+        lastS?.payload?.message === marker,
+        `message=${JSON.stringify(lastS?.payload?.message)}`);
+      await worldS.stop();
+    }
   }
 } finally {
   await onebot.close();

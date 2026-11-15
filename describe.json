@@ -2,7 +2,7 @@
   "tools": [
     {
       "name": "qq_initiative_send",
-      "description": "主动搭话专用发信渠道：向指定 QQ 私聊或群发送一条消息",
+      "description": "主动搭话专用发信渠道：向指定 QQ 私聊或群发送一条消息（只发正文，不带图）。发信通道由面板配置：builtin 直连 OneBot / external 交给宿主工具 / bridge 经 AstrBot 桥",
       "parameters": {
         "type": "object",
         "properties": {

@@ -4,3 +4,11 @@ proactive-state.json
 .DS_Store
 Thumbs.db
 .bak/
+
+# Standard exclusions
+logs/
+data/
+cache/
+config.json
+.vscode/
+.idea/
